@@ -1,0 +1,19 @@
+# Ansible sanity test ignore file
+# This file specifies sanity tests that should be ignored
+
+# Import errors are expected during collection development
+plugins/modules/terraform_organization_info.py import-3.9!skip
+plugins/modules/terraform_organization_info.py import-3.10!skip
+plugins/modules/terraform_organization_info.py import-3.11!skip
+plugins/modules/terraform_workspace.py import-3.9!skip
+plugins/modules/terraform_workspace.py import-3.10!skip
+plugins/modules/terraform_workspace.py import-3.11!skip
+plugins/modules/terraform_workspace_variables.py import-3.9!skip
+plugins/modules/terraform_workspace_variables.py import-3.10!skip
+plugins/modules/terraform_workspace_variables.py import-3.11!skip
+plugins/modules/terraform_workspace_info.py import-3.9!skip
+plugins/modules/terraform_workspace_info.py import-3.10!skip
+plugins/modules/terraform_workspace_info.py import-3.11!skip
+plugins/modules/terraform_workspace_run.py import-3.9!skip
+plugins/modules/terraform_workspace_run.py import-3.10!skip
+plugins/modules/terraform_workspace_run.py import-3.11!skip

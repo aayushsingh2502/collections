@@ -1,0 +1,88 @@
+---
+- name: Test Final Demo - Create final-test-demo Workspace
+  hosts: localhost
+  gather_facts: false
+  
+  vars:
+    terraform_token: "{{ lookup('env', 'TFE_TOKEN') }}"
+    organization_name: "aayush-test"
+    workspace_name: "final-test-demo2"
+
+  tasks:
+    - name: Get organization information
+      hashidemo.terraform.terraform_organization_info:
+        token: "{{ terraform_token }}"
+        organization: "{{ organization_name }}"
+      register: org_info
+
+    - name: Display organization info
+      debug:
+        var: org_info
+
+    - name: Create final-test-demo workspace
+      hashidemo.terraform.terraform_workspace:
+        token: "{{ terraform_token }}"
+        organization: "{{ organization_name }}"
+        name: "{{ workspace_name }}"
+        description: "Final test demo workspace created with updated Ansible Collection"
+        terraform_version: "1.6.0"
+        auto_apply: false
+        execution_mode: "remote"
+        tag_names:
+          - "demo"
+          - "test"
+          - "ansible-managed"
+        state: present
+      register: workspace_result
+
+    - name: Display workspace creation result
+      debug:
+        var: workspace_result
+
+    - name: Set workspace variables
+      hashidemo.terraform.terraform_workspace_variables:
+        token: "{{ terraform_token }}"
+        organization: "{{ organization_name }}"
+        workspace: "{{ workspace_name }}"
+        variables:
+          environment:
+            value: "test"
+            category: "terraform"
+            description: "Environment name"
+          region:
+            value: "us-west-2"
+            category: "terraform"
+            description: "AWS region for deployment"
+          app_version:
+            value: "1.0.0"
+            category: "terraform"
+            description: "Application version"
+          DEBUG_MODE:
+            value: "true"
+            category: "env"
+            description: "Enable debug mode"
+        state: present
+      register: variables_result
+
+    - name: Display variables result
+      debug:
+        var: variables_result
+
+    - name: Get workspace info with variables
+      hashidemo.terraform.terraform_workspace_info:
+        token: "{{ terraform_token }}"
+        organization: "{{ organization_name }}"
+        name: "{{ workspace_name }}"
+        include_variables: true
+      register: workspace_info
+
+    - name: Display complete workspace information
+      debug:
+        msg: |
+          Workspace: {{ workspace_info.workspace.name }}
+          ID: {{ workspace_info.workspace.id }}
+          Description: {{ workspace_info.workspace.description }}
+          Terraform Version: {{ workspace_info.workspace.terraform_version }}
+          Auto Apply: {{ workspace_info.workspace.auto_apply }}
+          Tags: {{ workspace_info.workspace.tag_names }}
+          Variables Count: {{ workspace_info.workspace.variables | length }}

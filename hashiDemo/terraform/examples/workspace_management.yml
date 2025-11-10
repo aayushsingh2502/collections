@@ -1,0 +1,84 @@
+- name: Terraform Workspace Management Example
+  hosts: localhost
+  gather_facts: false
+  vars:
+    terraform_token: "{{ lookup('env', 'TFE_TOKEN') }}"
+    organization_name: "aayush-test"
+    workspace_name: "collections-test-workspace"
+
+  tasks:
+    - name: Get organization information
+      hashidemo.terraform.terraform_organization_info:
+        token: "{{ terraform_token }}"
+        organization: "{{ organization_name }}"
+      register: org_info
+
+    - name: Display organization info
+      debug:
+        var: org_info
+
+    - name: Create workspace
+      hashidemo.terraform.terraform_workspace:
+        token: "{{ terraform_token }}"
+        organization: "{{ organization_name }}"
+        name: "{{ workspace_name }}"
+        description: "Example workspace created with Ansible Collections"
+        terraform_version: "1.6.0"
+        auto_apply: false
+        state: present
+      register: workspace_result
+
+    - name: Display workspace creation result
+      debug:
+        var: workspace_result
+
+    - name: Set workspace variables
+      hashidemo.terraform.terraform_workspace_variables:
+        token: "{{ terraform_token }}"
+        organization: "{{ organization_name }}"
+        workspace: "{{ workspace_name }}"
+        variables:
+          environment:
+            value: "development"
+            category: "terraform"
+            description: "Environment name"
+          region:
+            value: "us-west-2"
+            category: "terraform"
+            description: "AWS region"
+          AWS_ACCESS_KEY_ID:
+            value: "{{ lookup('env', 'AWS_ACCESS_KEY_ID') }}"
+            category: "env"
+            sensitive: true
+          AWS_SECRET_ACCESS_KEY:
+            value: "{{ lookup('env', 'AWS_SECRET_ACCESS_KEY') }}"
+            category: "env"
+            sensitive: true
+        state: present
+
+    # - name: Get workspace information
+    #   hashidemo.terraform.terraform_workspace_info:
+    #     token: "{{ terraform_token }}"
+    #     organization: "{{ organization_name }}"
+    #     workspace: "{{ workspace_name }}"
+    #   register: workspace_info
+
+    # - name: Display workspace info
+    #   debug:
+    #     var: workspace_info
+
+    # - name: Trigger a plan-only run
+    #   hashidemo.terraform.terraform_workspace_run:
+    #     token: "{{ terraform_token }}"
+    #     organization: "{{ organization_name }}"
+    #     workspace: "{{ workspace_name }}"
+    #     action: "trigger"
+    #     message: "Plan run triggered from Ansible"
+    #     plan_only: true
+    #     wait: true
+    #     timeout: 300
+    #   register: run_result
+
+    # - name: Display run result
+    #   debug:
+    #     var: run_result
